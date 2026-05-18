@@ -1,17 +1,51 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MealType } from '../types';
+import { FoodHistory } from '../hooks/useHistory';
 
 interface Props {
   onAdd: (name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void;
+  foodHistory: FoodHistory[];
 }
 
 const MEAL_TYPES: MealType[] = ['matin', 'midi', 'soir', 'en-cas', 'apéro'];
 
-export function ConsumptionForm({ onAdd }: Props) {
+export function ConsumptionForm({ onAdd, foodHistory }: Props) {
   const [name, setName] = useState('');
   const [pointsPerUnit, setPointsPerUnit] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [mealType, setMealType] = useState<MealType>('midi');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<FoodHistory[]>([]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleNameChange = (value: string) => {
+    setName(value);
+    if (value.trim().length > 0) {
+      const suggestions = foodHistory.filter(item =>
+        item.name.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 5);
+      setFilteredSuggestions(suggestions);
+      setShowSuggestions(suggestions.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSelectSuggestion = (item: FoodHistory) => {
+    setName(item.name);
+    setPointsPerUnit(item.pointsPerUnit.toString());
+    setShowSuggestions(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +54,7 @@ export function ConsumptionForm({ onAdd }: Props) {
       setName('');
       setPointsPerUnit('');
       setQuantity(1);
+      setShowSuggestions(false);
     }
   };
 
@@ -27,13 +62,34 @@ export function ConsumptionForm({ onAdd }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="input-group">
-      <input
-        type="text"
-        placeholder="Nom (ex: Pomme)"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
+      <div ref={wrapperRef} className="autocomplete-wrapper">
+        <input
+          type="text"
+          placeholder="Nom (ex: Pomme)"
+          value={name}
+          onChange={(e) => handleNameChange(e.target.value)}
+          onFocus={() => {
+            if (name.trim() && filteredSuggestions.length > 0) {
+              setShowSuggestions(true);
+            }
+          }}
+          required
+        />
+        {showSuggestions && (
+          <ul className="suggestions-list">
+            {filteredSuggestions.map((item, index) => (
+              <li
+                key={index}
+                className="suggestion-item"
+                onClick={() => handleSelectSuggestion(item)}
+              >
+                <span className="suggestion-name">{item.name}</span>
+                <span className="suggestion-points">{item.pointsPerUnit} pts</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       <div className="input-row">
         <input
           type="number"

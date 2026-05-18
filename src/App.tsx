@@ -32,6 +32,7 @@ function App() {
         <DailyPage
           todayData={todayData}
           remainingPoints={remainingPoints}
+          weekData={weekData}
           onAddConsumption={addConsumption}
           onAddActivity={addActivity}
           onUpdateConsumptionQuantity={updateConsumptionQuantity}

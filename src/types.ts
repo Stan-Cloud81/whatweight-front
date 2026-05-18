@@ -51,3 +51,17 @@ export interface WeekData {
   dailyBasePoints: number;
   days: Record<string, DayData>;
 }
+
+export interface WeightEntry {
+  id: string;
+  date: string;
+  weight: number;
+  timestamp: number;
+}
+
+export interface AppData {
+  weekData: WeekData;
+  weightEntries: WeightEntry[];
+}
+
+export type ViewMode = 'daily' | 'history' | 'weight';

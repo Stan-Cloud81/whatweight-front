@@ -63,9 +63,9 @@ export function WeightPage() {
                 <Line 
                   type="monotone" 
                   dataKey="poids" 
-                  stroke="#667eea" 
+                  stroke="#0a6bc7" 
                   strokeWidth={3}
-                  dot={{ fill: '#667eea', r: 5 }}
+                  dot={{ fill: '#0a6bc7', r: 5 }}
                 />
               </LineChart>
             </ResponsiveContainer>

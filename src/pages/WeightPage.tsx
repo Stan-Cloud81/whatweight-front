@@ -87,14 +87,14 @@ export function WeightPage() {
               min="0"
               step="0.1"
               required
-              style={{ flex: 1 }}
+              className="weight-input"
             />
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              style={{ flex: 1 }}
+              className="date-input"
             />
           </div>
           <button type="submit">Enregistrer</button>
@@ -111,10 +111,9 @@ export function WeightPage() {
                   <div className="entry-name">{entry.weight} kg</div>
                   <div className="entry-details">
                     {new Date(entry.date).toLocaleDateString('fr-FR', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
                       day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
                     })}
                   </div>
                 </div>

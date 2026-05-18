@@ -9,6 +9,7 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   padding: 1rem;
+  overflow-x: hidden;
 }
 
 .app {
@@ -20,6 +21,7 @@ body {
   padding-bottom: 80px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .header {
@@ -83,6 +85,18 @@ body {
 .input-row {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+}
+
+.weight-input {
+  flex: 0 0 40% !important;
+  min-width: 0;
+}
+
+.date-input {
+  flex: 1 !important;
+  min-width: 0;
+  max-width: 100%;
 }
 
 input, select, button {
@@ -132,17 +146,25 @@ button:disabled {
 
 .entry-info {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .entry-name {
   font-weight: 600;
   color: #333;
   margin-bottom: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .entry-details {
   font-size: 0.85rem;
   color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .entry-points {
@@ -425,23 +447,26 @@ button:disabled {
 
 .chart-container-full {
   background: white;
-  padding: 0.5rem;
+  padding: 0.5rem 0;
   border-radius: 10px;
   margin-bottom: 1rem;
-  margin-left: -1.5rem;
-  margin-right: -1.5rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
   position: relative;
+  overflow: hidden;
 }
 
 @media (max-width: 600px) {
   body {
     padding: 0;
+    overflow-x: hidden;
   }
   
   .app {
     border-radius: 0;
     min-height: 100vh;
     padding-bottom: 80px;
+    overflow-x: hidden;
   }
   
   .points-number {
@@ -464,5 +489,10 @@ button:disabled {
     left: 0;
     transform: none;
     max-width: 100%;
+  }
+
+  .chart-container-full {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
   }
 }

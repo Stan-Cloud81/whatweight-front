@@ -8,6 +8,7 @@ interface Props {
   todayData: DayData;
   remainingPoints: number;
   weekData: WeekData;
+  currentWeight: number | null;
   onAddConsumption: (name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void;
   onAddActivity: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void;
   onUpdateConsumptionQuantity: (id: string, delta: number) => void;
@@ -19,6 +20,7 @@ export function DailyPage({
   todayData,
   remainingPoints,
   weekData,
+  currentWeight,
   onAddConsumption,
   onAddActivity,
   onUpdateConsumptionQuantity,
@@ -50,7 +52,11 @@ export function DailyPage({
 
       <section className="section">
         <h3>🏃 Activités</h3>
-        <ActivityForm onAdd={onAddActivity} activityHistory={activityHistory} />
+        <ActivityForm 
+          onAdd={onAddActivity} 
+          activityHistory={activityHistory}
+          currentWeight={currentWeight}
+        />
       </section>
 
       <section className="section">

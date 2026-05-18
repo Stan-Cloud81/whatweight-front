@@ -1,18 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { ActivityIntensity } from '../types';
 import { ActivityHistory } from '../hooks/useHistory';
+import { calculateActivityPoints } from '../utils/pointsCalculator';
 
 interface Props {
   onAdd: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void;
   activityHistory: ActivityHistory[];
+  currentWeight: number | null;
 }
 
 const INTENSITIES: ActivityIntensity[] = ['léger', 'modéré', 'élevé'];
 
-export function ActivityForm({ onAdd, activityHistory }: Props) {
+export function ActivityForm({ onAdd, activityHistory, currentWeight }: Props) {
   const [name, setName] = useState('');
   const [duration, setDuration] = useState('');
-  const [points, setPoints] = useState('');
   const [intensity, setIntensity] = useState<ActivityIntensity>('modéré');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<ActivityHistory[]>([]);
@@ -44,18 +45,20 @@ export function ActivityForm({ onAdd, activityHistory }: Props) {
   const handleSelectSuggestion = (item: ActivityHistory) => {
     setName(item.name);
     setDuration(item.durationMinutes.toString());
-    setPoints(item.pointsEarned.toString());
     setIntensity(item.intensity as ActivityIntensity);
     setShowSuggestions(false);
   };
 
+  const calculatedPoints = duration && currentWeight
+    ? calculateActivityPoints(intensity, Number(duration), currentWeight)
+    : 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() && duration && points) {
-      onAdd(name.trim(), intensity, Number(duration), Number(points));
+    if (name.trim() && duration && currentWeight) {
+      onAdd(name.trim(), intensity, Number(duration), calculatedPoints);
       setName('');
       setDuration('');
-      setPoints('');
       setShowSuggestions(false);
     }
   };
@@ -85,7 +88,7 @@ export function ActivityForm({ onAdd, activityHistory }: Props) {
               >
                 <span className="suggestion-name">{item.name}</span>
                 <span className="suggestion-details">
-                  {item.durationMinutes}min • {item.intensity} • +{item.pointsEarned} pts
+                  {item.durationMinutes}min • {item.intensity}
                 </span>
               </li>
             ))}
@@ -114,19 +117,17 @@ export function ActivityForm({ onAdd, activityHistory }: Props) {
           ))}
         </select>
       </div>
-      <div className="input-row">
-        <input
-          type="number"
-          placeholder="Points gagnés"
-          value={points}
-          onChange={(e) => setPoints(e.target.value)}
-          min="0"
-          step="0.5"
-          required
-          style={{ flex: 1 }}
-        />
-      </div>
-      <button type="submit">+ Ajouter activité</button>
+      {!currentWeight && (
+        <div className="warning-message">
+          ⚠️ Veuillez renseigner votre poids pour calculer les points
+        </div>
+      )}
+      {calculatedPoints > 0 && (
+        <div className="points-preview">
+          Points gagnés: +{calculatedPoints}
+        </div>
+      )}
+      <button type="submit" disabled={!currentWeight}>+ Ajouter activité</button>
     </form>
   );
 }

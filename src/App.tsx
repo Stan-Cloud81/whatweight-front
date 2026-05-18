@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import { ViewMode } from './types';
 import { usePointsTracker } from './hooks/usePointsTracker';
+import { useWeightTracker } from './hooks/useWeightTracker';
 import { NavigationBar } from './components/NavigationBar';
 import { DailyPage } from './pages/DailyPage';
 import { HistoryPage } from './pages/HistoryPage';
@@ -21,6 +22,9 @@ function App() {
     weekData,
   } = usePointsTracker();
 
+  const { getCurrentWeight } = useWeightTracker();
+  const currentWeight = getCurrentWeight();
+
   return (
     <div className="app">
       <header className="header">
@@ -33,6 +37,7 @@ function App() {
           todayData={todayData}
           remainingPoints={remainingPoints}
           weekData={weekData}
+          currentWeight={currentWeight}
           onAddConsumption={addConsumption}
           onAddActivity={addActivity}
           onUpdateConsumptionQuantity={updateConsumptionQuantity}

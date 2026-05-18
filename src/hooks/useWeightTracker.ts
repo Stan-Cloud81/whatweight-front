@@ -52,10 +52,16 @@ export function useWeightTracker() {
     return entry ? entry.weight : null;
   };
 
+  const getCurrentWeight = (): number | null => {
+    if (weightEntries.length === 0) return null;
+    return weightEntries[weightEntries.length - 1].weight;
+  };
+
   return {
     weightEntries,
     addWeightEntry,
     deleteWeightEntry,
     getWeightForDate,
+    getCurrentWeight,
   };
 }

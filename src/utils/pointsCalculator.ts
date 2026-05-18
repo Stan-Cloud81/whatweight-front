@@ -1,16 +1,20 @@
 import { ActivityIntensity } from '../types';
 
-const POINTS_PER_MINUTE: Record<ActivityIntensity, number> = {
-  'léger': 0.5,
-  'modéré': 1.0,
-  'élevé': 1.5,
+const INTENSITY_FACTORS: Record<ActivityIntensity, { factor: number; offset: number }> = {
+  'léger': { factor: 0.000232, offset: 0.5 },
+  'modéré': { factor: 0.000327, offset: 0.4 },
+  'élevé': { factor: 0.0008077, offset: 0.5 },
 };
 
 export function calculateActivityPoints(
   intensity: ActivityIntensity,
-  durationMinutes: number
+  durationMinutes: number,
+  weightKg: number
 ): number {
-  return Math.round(POINTS_PER_MINUTE[intensity] * durationMinutes);
+  const weightLbs = weightKg * 2.205;
+  const { factor, offset } = INTENSITY_FACTORS[intensity];
+  const points = weightLbs * durationMinutes * factor + offset;
+  return Math.floor(points);
 }
 
 export function calculateDayRemainingPoints(

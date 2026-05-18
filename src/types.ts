@@ -1,6 +1,6 @@
 export type ActivityIntensity = 'léger' | 'modéré' | 'élevé';
 
-export type MealType = 'matin' | 'midi' | 'soir' | 'en-cas' | 'apéro';
+export type MealType = 'matin' | 'midi' | 'soir' | 'en-cas/plaisir';
 
 export interface Food {
   id: string;

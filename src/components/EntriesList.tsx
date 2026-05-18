@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Consumption, ActivityEntry } from '../types';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   consumptions: Consumption[];
@@ -15,6 +17,15 @@ export function EntriesList({
   onDeleteConsumption,
   onDeleteActivity,
 }: Props) {
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    message: '',
+    onConfirm: () => {},
+  });
   const allEntries = [
     ...consumptions.map((c) => ({
       id: c.id,
@@ -41,57 +52,83 @@ export function EntriesList({
   }
 
   return (
-    <div className="entries-list">
-      {allEntries.map((entry) => (
-        <div key={entry.id} className="entry-item">
-          <div className="entry-info">
-            <div className="entry-name">{entry.name}</div>
-            <div className="entry-details">
-              {entry.details}
-              {entry.type === 'consumption' && (
-                <> • Qté: {entry.quantity}</>
-              )}
+    <>
+      <div className="entries-list">
+        {allEntries.map((entry) => (
+          <div key={entry.id} className="entry-item">
+            <div className="entry-info">
+              <div className="entry-name">{entry.name}</div>
+              <div className="entry-details">
+                {entry.details}
+                {entry.type === 'consumption' && (
+                  <> • Qté: {entry.quantity}</>
+                )}
+              </div>
             </div>
-          </div>
-          <div
-            className={`entry-points ${
-              entry.points > 0 ? 'positive' : 'negative'
-            }`}
-          >
-            {entry.points > 0 ? '+' : ''}
-            {entry.points}
-          </div>
-          {entry.type === 'consumption' ? (
-            <div className="consumption-controls">
-              <button
-                className="quantity-btn-small"
-                onClick={() =>
-                  entry.quantity === 1
-                    ? onDeleteConsumption(entry.id)
-                    : onUpdateConsumptionQuantity(entry.id, -1)
-                }
-                title={entry.quantity === 1 ? 'Supprimer' : 'Réduire quantité'}
-              >
-                {entry.quantity === 1 ? '🗑️' : '−'}
-              </button>
-              <button
-                className="quantity-btn-small"
-                onClick={() => onUpdateConsumptionQuantity(entry.id, 1)}
-                title="Augmenter quantité"
-              >
-                +
-              </button>
-            </div>
-          ) : (
-            <button
-              className="delete-btn"
-              onClick={() => onDeleteActivity(entry.id)}
+            <div
+              className={`entry-points ${
+                entry.points > 0 ? 'positive' : 'negative'
+              }`}
             >
-              ✕
-            </button>
-          )}
-        </div>
-      ))}
-    </div>
+              {entry.points > 0 ? '+' : ''}
+              {entry.points}
+            </div>
+            {entry.type === 'consumption' ? (
+              <div className="consumption-controls">
+                <button
+                  className="quantity-btn-small"
+                  onClick={() => onUpdateConsumptionQuantity(entry.id, 1)}
+                  title="Augmenter quantité"
+                >
+                  +
+                </button>
+                <button
+                  className="quantity-btn-small"
+                  onClick={() => {
+                    if (entry.quantity === 1) {
+                      setConfirmDialog({
+                        isOpen: true,
+                        message: `Supprimer "${entry.name}" ?`,
+                        onConfirm: () => {
+                          onDeleteConsumption(entry.id);
+                          setConfirmDialog({ isOpen: false, message: '', onConfirm: () => {} });
+                        },
+                      });
+                    } else {
+                      onUpdateConsumptionQuantity(entry.id, -1);
+                    }
+                  }}
+                  title={entry.quantity === 1 ? 'Supprimer' : 'Réduire quantité'}
+                >
+                  {entry.quantity === 1 ? '🗑️' : '−'}
+                </button>
+              </div>
+            ) : (
+              <button
+                className="delete-btn"
+                onClick={() => {
+                  setConfirmDialog({
+                    isOpen: true,
+                    message: `Supprimer l'activité "${entry.name}" ?`,
+                    onConfirm: () => {
+                      onDeleteActivity(entry.id);
+                      setConfirmDialog({ isOpen: false, message: '', onConfirm: () => {} });
+                    },
+                  });
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: () => {} })}
+      />
+    </>
   );
 }

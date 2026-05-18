@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useWeightTracker } from '../hooks/useWeightTracker';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 export function WeightPage() {
   const { weightEntries, addWeightEntry, deleteWeightEntry } = useWeightTracker();
   const [weight, setWeight] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    message: '',
+    onConfirm: () => {},
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +129,16 @@ export function WeightPage() {
                 </div>
                 <button
                   className="delete-btn"
-                  onClick={() => deleteWeightEntry(entry.id)}
+                  onClick={() => {
+                    setConfirmDialog({
+                      isOpen: true,
+                      message: `Supprimer le poids du ${new Date(entry.date).toLocaleDateString('fr-FR')} ?`,
+                      onConfirm: () => {
+                        deleteWeightEntry(entry.id);
+                        setConfirmDialog({ isOpen: false, message: '', onConfirm: () => {} });
+                      },
+                    });
+                  }}
                 >
                   ✕
                 </button>
@@ -130,6 +149,12 @@ export function WeightPage() {
           <div className="empty-state">Aucun historique</div>
         )}
       </section>
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ isOpen: false, message: '', onConfirm: () => {} })}
+      />
     </div>
   );
 }

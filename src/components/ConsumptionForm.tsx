@@ -7,7 +7,7 @@ interface Props {
   foodHistory: FoodHistory[];
 }
 
-const MEAL_TYPES: MealType[] = ['matin', 'midi', 'soir', 'en-cas', 'apéro'];
+const MEAL_TYPES: MealType[] = ['matin', 'midi', 'soir', 'en-cas/plaisir'];
 
 export function ConsumptionForm({ onAdd, foodHistory }: Props) {
   const [name, setName] = useState('');
@@ -97,7 +97,7 @@ export function ConsumptionForm({ onAdd, foodHistory }: Props) {
           value={pointsPerUnit}
           onChange={(e) => setPointsPerUnit(e.target.value)}
           min="0"
-          step="0.5"
+          step="0.25"
           required
           style={{ flex: 1 }}
         />

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIntensity } from '../types';
 
 interface Props {
-  onAdd: (name: string, intensity: ActivityIntensity, duration: number) => void;
+  onAdd: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void;
 }
 
 const INTENSITIES: ActivityIntensity[] = ['léger', 'modéré', 'élevé'];
@@ -10,14 +10,16 @@ const INTENSITIES: ActivityIntensity[] = ['léger', 'modéré', 'élevé'];
 export function ActivityForm({ onAdd }: Props) {
   const [name, setName] = useState('');
   const [duration, setDuration] = useState('');
+  const [points, setPoints] = useState('');
   const [intensity, setIntensity] = useState<ActivityIntensity>('modéré');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim() && duration) {
-      onAdd(name.trim(), intensity, Number(duration));
+    if (name.trim() && duration && points) {
+      onAdd(name.trim(), intensity, Number(duration), Number(points));
       setName('');
       setDuration('');
+      setPoints('');
     }
   };
 
@@ -51,6 +53,18 @@ export function ActivityForm({ onAdd }: Props) {
             </option>
           ))}
         </select>
+      </div>
+      <div className="input-row">
+        <input
+          type="number"
+          placeholder="Points gagnés"
+          value={points}
+          onChange={(e) => setPoints(e.target.value)}
+          min="0"
+          step="0.5"
+          required
+          style={{ flex: 1 }}
+        />
       </div>
       <button type="submit">+ Ajouter activité</button>
     </form>

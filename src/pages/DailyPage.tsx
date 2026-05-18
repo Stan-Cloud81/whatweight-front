@@ -7,7 +7,7 @@ interface Props {
   todayData: DayData;
   remainingPoints: number;
   onAddConsumption: (name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void;
-  onAddActivity: (name: string, intensity: ActivityIntensity, duration: number) => void;
+  onAddActivity: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void;
   onUpdateConsumptionQuantity: (id: string, delta: number) => void;
   onDeleteConsumption: (id: string) => void;
   onDeleteActivity: (id: string) => void;

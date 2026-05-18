@@ -112,10 +112,10 @@ export function usePointsTracker() {
   const addActivity = (
     activityName: string,
     intensity: ActivityIntensity,
-    durationMinutes: number
+    durationMinutes: number,
+    pointsEarned: number
   ) => {
     const today = getTodayDateString();
-    const pointsEarned = calculateActivityPoints(intensity, durationMinutes);
     const activity: ActivityEntry = {
       id: generateId(),
       activityName,

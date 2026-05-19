@@ -155,8 +155,7 @@ export function ProfilePage({ userProfile, onUpdateProfile, currentWeight }: Pro
         <h3>ℹ️ Informations</h3>
         <div className="info-card">
           <p>
-            Vos informations personnelles sont utilisées pour calculer vos points de base quotidiens 
-            selon la formule Weight Watchers.
+            Vos informations personnelles sont utilisées pour calculer vos points de base quotidiens.
           </p>
           <p>
             Les points sont recalculés automatiquement à chaque enregistrement de poids.

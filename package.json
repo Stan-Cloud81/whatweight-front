@@ -1,8 +1,28 @@
 {
   "name": "whatweight-frontend",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "description": "Application de suivi de points quotidien",
+  "author": "WhatWeight Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Stan-Cloud81/whatweight-frontend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Stan-Cloud81/whatweight-frontend/issues"
+  },
+  "homepage": "https://github.com/Stan-Cloud81/whatweight-frontend#readme",
+  "keywords": [
+    "points",
+    "diet",
+    "health",
+    "fitness",
+    "tracking",
+    "react",
+    "typescript"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

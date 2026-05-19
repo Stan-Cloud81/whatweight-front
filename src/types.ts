@@ -59,9 +59,18 @@ export interface WeightEntry {
   timestamp: number;
 }
 
+export type Gender = 'femme' | 'homme';
+
+export interface UserProfile {
+  gender: Gender | null;
+  birthDate: string | null;
+  height: number | null;
+}
+
 export interface AppData {
   weekData: WeekData;
   weightEntries: WeightEntry[];
+  userProfile: UserProfile;
 }
 
-export type ViewMode = 'daily' | 'history' | 'weight';
+export type ViewMode = 'daily' | 'history' | 'weight' | 'profile';

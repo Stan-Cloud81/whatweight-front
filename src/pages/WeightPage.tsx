@@ -3,8 +3,13 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useWeightTracker } from '../hooks/useWeightTracker';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 
-export function WeightPage() {
-  const { weightEntries, addWeightEntry, deleteWeightEntry } = useWeightTracker();
+interface Props {
+  onAddWeight: (weight: number, date?: string) => void;
+  onDeleteWeight: (id: string) => void;
+}
+
+export function WeightPage({ onAddWeight, onDeleteWeight }: Props) {
+  const { weightEntries } = useWeightTracker();
   const [weight, setWeight] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -20,7 +25,7 @@ export function WeightPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (weight) {
-      addWeightEntry(Number(weight), date);
+      onAddWeight(Number(weight), date);
       setWeight('');
       setDate(new Date().toISOString().split('T')[0]);
     }
@@ -134,7 +139,7 @@ export function WeightPage() {
                       isOpen: true,
                       message: `Supprimer le poids du ${new Date(entry.date).toLocaleDateString('fr-FR')} ?`,
                       onConfirm: () => {
-                        deleteWeightEntry(entry.id);
+                        onDeleteWeight(entry.id);
                         setConfirmDialog({ isOpen: false, message: '', onConfirm: () => {} });
                       },
                     });

@@ -32,6 +32,14 @@ export function NavigationBar({ currentView, onViewChange }: Props) {
         <span className="nav-icon">⚖️</span>
         <span className="nav-label">Poids</span>
       </button>
+      <button
+        className={`nav-btn ${currentView === 'profile' ? 'active' : ''}`}
+        onClick={() => onViewChange('profile')}
+        title="Mon profil"
+      >
+        <span className="nav-icon">👤</span>
+        <span className="nav-label">Profil</span>
+      </button>
     </nav>
   );
 }

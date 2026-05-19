@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { WeightEntry } from '../types';
+import { WeightEntry, UserProfile } from '../types';
 import { generateId } from '../utils/pointsCalculator';
+import { calculateBasePoints } from '../utils/basePointsCalculator';
 
 const WEIGHT_STORAGE_KEY = 'whatweight-weight-data';
 
@@ -17,7 +18,12 @@ export function useWeightTracker() {
     localStorage.setItem(WEIGHT_STORAGE_KEY, JSON.stringify(weightEntries));
   }, [weightEntries]);
 
-  const addWeightEntry = (weight: number, date?: string) => {
+  const addWeightEntry = (
+    weight: number, 
+    date?: string,
+    userProfile?: UserProfile,
+    onBasePointsUpdate?: (newBasePoints: number) => void
+  ) => {
     const entryDate = date || new Date().toISOString().split('T')[0];
     
     const existingIndex = weightEntries.findIndex(e => e.date === entryDate);
@@ -41,10 +47,39 @@ export function useWeightTracker() {
         new Date(a.date).getTime() - new Date(b.date).getTime()
       ));
     }
+    
+    if (userProfile?.gender && userProfile?.birthDate && userProfile?.height) {
+      const newBasePoints = calculateBasePoints(
+        userProfile.gender,
+        weight,
+        userProfile.birthDate,
+        userProfile.height
+      );
+      onBasePointsUpdate?.(newBasePoints);
+    }
   };
 
-  const deleteWeightEntry = (id: string) => {
-    setWeightEntries(prev => prev.filter(e => e.id !== id));
+  const deleteWeightEntry = (
+    id: string,
+    userProfile?: UserProfile,
+    onBasePointsUpdate?: (newBasePoints: number) => void
+  ) => {
+    setWeightEntries(prev => {
+      const filtered = prev.filter(e => e.id !== id);
+      
+      if (filtered.length > 0 && userProfile?.gender && userProfile?.birthDate && userProfile?.height) {
+        const latestWeight = filtered[filtered.length - 1].weight;
+        const newBasePoints = calculateBasePoints(
+          userProfile.gender,
+          latestWeight,
+          userProfile.birthDate,
+          userProfile.height
+        );
+        onBasePointsUpdate?.(newBasePoints);
+      }
+      
+      return filtered;
+    });
   };
 
   const getWeightForDate = (date: string): number | null => {

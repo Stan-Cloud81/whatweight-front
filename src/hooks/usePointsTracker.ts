@@ -14,9 +14,8 @@ import {
 } from '../utils/pointsCalculator';
 
 const STORAGE_KEY = 'whatweight-data';
-const DEFAULT_DAILY_POINTS = 31;
 
-export function usePointsTracker() {
+export function usePointsTracker(initialBasePoints?: number) {
   const [weekData, setWeekData] = useState<WeekData>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -24,7 +23,7 @@ export function usePointsTracker() {
     }
     return {
       startDate: getTodayDateString(),
-      dailyBasePoints: DEFAULT_DAILY_POINTS,
+      dailyBasePoints: initialBasePoints || 31,
       days: {},
     };
   });
@@ -396,6 +395,29 @@ export function usePointsTracker() {
     });
   };
 
+  const updateBasePoints = (newBasePoints: number) => {
+    const today = getTodayDateString();
+    
+    setWeekData(prev => {
+      const updatedDays = { ...prev.days };
+      
+      Object.entries(updatedDays).forEach(([date, dayData]) => {
+        if (date >= today) {
+          updatedDays[date] = {
+            ...dayData,
+            basePoints: newBasePoints,
+          };
+        }
+      });
+      
+      return {
+        ...prev,
+        dailyBasePoints: newBasePoints,
+        days: updatedDays,
+      };
+    });
+  };
+
   return {
     todayData,
     remainingPoints,
@@ -410,5 +432,6 @@ export function usePointsTracker() {
     updateConsumptionQuantityForDate,
     deleteConsumptionForDate,
     deleteActivityForDate,
+    updateBasePoints,
   };
 }

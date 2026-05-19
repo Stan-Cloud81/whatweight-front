@@ -1,4 +1,4 @@
-import { WeekData, Consumption, ActivityEntry } from '../types';
+import { WeekData } from '../types';
 
 export interface FoodHistory {
   name: string;

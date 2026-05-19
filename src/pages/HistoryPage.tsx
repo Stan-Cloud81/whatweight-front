@@ -1,18 +1,40 @@
 import { useState, useEffect } from 'react';
-import { WeekData, DayData } from '../types';
+import { WeekData, DayData, MealType, ActivityIntensity } from '../types';
 import { calculateDayRemainingPoints } from '../utils/pointsCalculator';
 import { setupBackButtonHandler, pushNavigationState } from '../utils/navigation';
+import { ConsumptionForm } from '../components/ConsumptionForm';
+import { ActivityForm } from '../components/ActivityForm';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { getFoodHistory, getActivityHistory } from '../hooks/useHistory';
 
 interface Props {
   weekData: WeekData;
+  currentWeight: number | null;
+  onAddConsumption: (date: string, name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void;
+  onAddActivity: (date: string, name: string, intensity: ActivityIntensity, duration: number, points: number) => void;
+  onUpdateConsumptionQuantity: (date: string, id: string, delta: number) => void;
+  onDeleteConsumption: (date: string, id: string) => void;
+  onDeleteActivity: (date: string, id: string) => void;
 }
 
 type HistoryView = 'week' | 'day';
 type SelectedView = { type: 'week'; weekStart: string } | { type: 'day'; date: string } | null;
 
-export function HistoryPage({ weekData }: Props) {
+export function HistoryPage({ 
+  weekData, 
+  currentWeight,
+  onAddConsumption,
+  onAddActivity,
+  onUpdateConsumptionQuantity,
+  onDeleteConsumption,
+  onDeleteActivity,
+}: Props) {
   const [viewMode, setViewMode] = useState<HistoryView>('week');
   const [selectedView, setSelectedView] = useState<SelectedView>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'consumption' | 'activity'; id: string; date: string } | null>(null);
+  
+  const foodHistory = getFoodHistory(weekData);
+  const activityHistory = getActivityHistory(weekData);
 
   useEffect(() => {
     if (selectedView) {
@@ -25,8 +47,20 @@ export function HistoryPage({ weekData }: Props) {
   }, [selectedView]);
 
   const getDaysArray = () => {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    
     return Object.entries(weekData.days)
-      .map(([date, data]) => ({ date, ...data }))
+      .filter(([entryDate]) => entryDate !== todayStr)
+      .map(([entryDate, { basePoints, pointsUsed, pointsEarned, consumptions, activities, carryOverPoints }]) => ({ 
+        date: entryDate, 
+        basePoints,
+        pointsUsed,
+        pointsEarned,
+        consumptions,
+        activities,
+        carryOverPoints
+      }))
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   };
 
@@ -92,6 +126,20 @@ export function HistoryPage({ weekData }: Props) {
       dayData.carryOverPoints
     );
 
+    const handleDeleteConsumption = (id: string) => {
+      if (deleteConfirm) {
+        onDeleteConsumption(deleteConfirm.date, id);
+        setDeleteConfirm(null);
+      }
+    };
+
+    const handleDeleteActivity = (id: string) => {
+      if (deleteConfirm) {
+        onDeleteActivity(deleteConfirm.date, id);
+        setDeleteConfirm(null);
+      }
+    };
+
     return (
       <div className="page-content">
         <div className="day-detail-header">
@@ -115,25 +163,6 @@ export function HistoryPage({ weekData }: Props) {
         </div>
 
         <section className="section">
-          <h3>🍽️ Consommations ({dayData.consumptions.length})</h3>
-          {dayData.consumptions.length > 0 ? (
-            <div className="entries-list">
-              {dayData.consumptions.map((c) => (
-                <div key={c.id} className="entry-item">
-                  <div className="entry-info">
-                    <div className="entry-name">{c.foodName}</div>
-                    <div className="entry-details">{c.mealType} • Qté: {c.quantity}</div>
-                  </div>
-                  <div className="entry-points negative">-{c.points}</div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">Aucune consommation</div>
-          )}
-        </section>
-
-        <section className="section">
           <h3>🏃 Activités ({dayData.activities.length})</h3>
           {dayData.activities.length > 0 ? (
             <div className="entries-list">
@@ -146,13 +175,88 @@ export function HistoryPage({ weekData }: Props) {
                     </div>
                   </div>
                   <div className="entry-points positive">+{a.pointsEarned}</div>
+                  <button
+                    className="delete-btn"
+                    onClick={() => setDeleteConfirm({ type: 'activity', id: a.id, date: selectedView.date })}
+                  >
+                    ✕
+                  </button>
                 </div>
               ))}
             </div>
           ) : (
             <div className="empty-state">Aucune activité</div>
           )}
+          <ActivityForm
+            onAdd={(name, intensity, duration, points) => 
+              onAddActivity(selectedView.date, name, intensity, duration, points)
+            }
+            activityHistory={activityHistory}
+            currentWeight={currentWeight}
+          />
         </section>
+
+        <section className="section">
+          <h3>🍽️ Consommations ({dayData.consumptions.length})</h3>
+          {dayData.consumptions.length > 0 ? (
+            <div className="entries-list">
+              {dayData.consumptions.map((c) => (
+                <div key={c.id} className="entry-item">
+                  <div className="entry-info">
+                    <div className="entry-name">{c.foodName}</div>
+                    <div className="entry-details">{c.mealType} • Qté: {c.quantity}</div>
+                  </div>
+                  <div className="entry-points negative">-{c.points}</div>
+                  <div className="consumption-controls">
+                    <button
+                      className="quantity-btn-small"
+                      onClick={() => onUpdateConsumptionQuantity(selectedView.date, c.id, 1)}
+                      title="Augmenter quantité"
+                    >
+                      +
+                    </button>
+                    <button
+                      className="quantity-btn-small"
+                      onClick={() => {
+                        if (c.quantity === 1) {
+                          setDeleteConfirm({ type: 'consumption', id: c.id, date: selectedView.date });
+                        } else {
+                          onUpdateConsumptionQuantity(selectedView.date, c.id, -1);
+                        }
+                      }}
+                      title={c.quantity === 1 ? 'Supprimer' : 'Réduire quantité'}
+                    >
+                      {c.quantity === 1 ? '🗑️' : '−'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">Aucune consommation</div>
+          )}
+          <ConsumptionForm
+            onAdd={(name, pointsPerUnit, mealType, quantity) => 
+              onAddConsumption(selectedView.date, name, pointsPerUnit, mealType, quantity)
+            }
+            foodHistory={foodHistory}
+          />
+        </section>
+
+        {deleteConfirm && (
+          <ConfirmDialog
+            isOpen={true}
+            message={`Supprimer cette ${deleteConfirm.type === 'consumption' ? 'consommation' : 'activité'} ?`}
+            onConfirm={() => {
+              if (deleteConfirm.type === 'consumption') {
+                handleDeleteConsumption(deleteConfirm.id);
+              } else {
+                handleDeleteActivity(deleteConfirm.id);
+              }
+            }}
+            onCancel={() => setDeleteConfirm(null)}
+          />
+        )}
       </div>
     );
   }

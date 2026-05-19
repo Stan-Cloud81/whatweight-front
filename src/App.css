@@ -80,6 +80,7 @@ body {
   flex-direction: column;
   gap: 0.8rem;
   margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .input-row {
@@ -297,6 +298,12 @@ button:disabled {
   padding-bottom: 80px;
 }
 
+.entry-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .view-toggle {
   display: flex;
   gap: 0.5rem;
@@ -360,23 +367,25 @@ button:disabled {
 }
 
 .summary-card {
-  background: #f5f5f5;
+  background: linear-gradient(135deg, #0a6bc7 0%, #010586 100%);
   padding: 1rem;
   border-radius: 10px;
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(10, 107, 199, 0.3);
 }
 
 .summary-label {
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .summary-value {
   font-size: 1.5rem;
   font-weight: bold;
+  color: #ffffff;
 }
 
 .day-detail-header {

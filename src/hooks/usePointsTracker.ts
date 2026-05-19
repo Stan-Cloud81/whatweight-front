@@ -8,14 +8,13 @@ import {
   ActivityIntensity,
 } from '../types';
 import {
-  calculateActivityPoints,
   calculateDayRemainingPoints,
   getTodayDateString,
   generateId,
 } from '../utils/pointsCalculator';
 
 const STORAGE_KEY = 'whatweight-data';
-const DEFAULT_DAILY_POINTS = 30;
+const DEFAULT_DAILY_POINTS = 31;
 
 export function usePointsTracker() {
   const [weekData, setWeekData] = useState<WeekData>(() => {
@@ -240,6 +239,163 @@ export function usePointsTracker() {
     todayData.carryOverPoints
   );
 
+  const addConsumptionForDate = (
+    date: string,
+    foodName: string,
+    pointsPerUnit: number,
+    mealType: MealType,
+    quantity: number = 1
+  ) => {
+    const totalPoints = pointsPerUnit * quantity;
+    const consumption: Consumption = {
+      id: generateId(),
+      foodId: generateId(),
+      foodName,
+      mealType,
+      pointsPerUnit,
+      quantity,
+      points: totalPoints,
+      timestamp: Date.now(),
+    };
+
+    setWeekData((prev) => {
+      const dayData = prev.days[date];
+      if (!dayData) return prev;
+      return {
+        ...prev,
+        days: {
+          ...prev.days,
+          [date]: {
+            ...dayData,
+            pointsUsed: dayData.pointsUsed + totalPoints,
+            consumptions: [...dayData.consumptions, consumption],
+          },
+        },
+      };
+    });
+  };
+
+  const addActivityForDate = (
+    date: string,
+    activityName: string,
+    intensity: ActivityIntensity,
+    durationMinutes: number,
+    pointsEarned: number
+  ) => {
+    const activity: ActivityEntry = {
+      id: generateId(),
+      activityName,
+      intensity,
+      durationMinutes,
+      pointsEarned,
+      timestamp: Date.now(),
+    };
+
+    setWeekData((prev) => {
+      const dayData = prev.days[date];
+      if (!dayData) return prev;
+      return {
+        ...prev,
+        days: {
+          ...prev.days,
+          [date]: {
+            ...dayData,
+            pointsEarned: dayData.pointsEarned + pointsEarned,
+            activities: [...dayData.activities, activity],
+          },
+        },
+      };
+    });
+  };
+
+  const updateConsumptionQuantityForDate = (date: string, consumptionId: string, delta: number) => {
+    setWeekData((prev) => {
+      const dayData = prev.days[date];
+      if (!dayData) return prev;
+
+      const consumption = dayData.consumptions.find((c) => c.id === consumptionId);
+      if (!consumption) return prev;
+
+      const newQuantity = consumption.quantity + delta;
+      if (newQuantity <= 0) {
+        return {
+          ...prev,
+          days: {
+            ...prev.days,
+            [date]: {
+              ...dayData,
+              pointsUsed: dayData.pointsUsed - consumption.points,
+              consumptions: dayData.consumptions.filter((c) => c.id !== consumptionId),
+            },
+          },
+        };
+      }
+
+      const oldPoints = consumption.points;
+      const newPoints = consumption.pointsPerUnit * newQuantity;
+
+      return {
+        ...prev,
+        days: {
+          ...prev.days,
+          [date]: {
+            ...dayData,
+            pointsUsed: dayData.pointsUsed - oldPoints + newPoints,
+            consumptions: dayData.consumptions.map((c) =>
+              c.id === consumptionId
+                ? { ...c, quantity: newQuantity, points: newPoints }
+                : c
+            ),
+          },
+        },
+      };
+    });
+  };
+
+  const deleteConsumptionForDate = (date: string, consumptionId: string) => {
+    setWeekData((prev) => {
+      const dayData = prev.days[date];
+      if (!dayData) return prev;
+
+      const consumption = dayData.consumptions.find((c) => c.id === consumptionId);
+      if (!consumption) return prev;
+
+      return {
+        ...prev,
+        days: {
+          ...prev.days,
+          [date]: {
+            ...dayData,
+            pointsUsed: dayData.pointsUsed - consumption.points,
+            consumptions: dayData.consumptions.filter((c) => c.id !== consumptionId),
+          },
+        },
+      };
+    });
+  };
+
+  const deleteActivityForDate = (date: string, activityId: string) => {
+    setWeekData((prev) => {
+      const dayData = prev.days[date];
+      if (!dayData) return prev;
+
+      const activity = dayData.activities.find((a) => a.id === activityId);
+      if (!activity) return prev;
+
+      return {
+        ...prev,
+        days: {
+          ...prev.days,
+          [date]: {
+            ...dayData,
+            pointsEarned: dayData.pointsEarned - activity.pointsEarned,
+            activities: dayData.activities.filter((a) => a.id !== activityId),
+          },
+        },
+      };
+    });
+  };
+
   return {
     todayData,
     remainingPoints,
@@ -249,5 +405,10 @@ export function usePointsTracker() {
     deleteConsumption,
     deleteActivity,
     weekData,
+    addConsumptionForDate,
+    addActivityForDate,
+    updateConsumptionQuantityForDate,
+    deleteConsumptionForDate,
+    deleteActivityForDate,
   };
 }

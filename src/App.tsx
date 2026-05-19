@@ -20,6 +20,11 @@ function App() {
     deleteConsumption,
     deleteActivity,
     weekData,
+    addConsumptionForDate,
+    addActivityForDate,
+    updateConsumptionQuantityForDate,
+    deleteConsumptionForDate,
+    deleteActivityForDate,
   } = usePointsTracker();
 
   const { getCurrentWeight } = useWeightTracker();
@@ -47,7 +52,15 @@ function App() {
       )}
 
       {currentView === 'history' && (
-        <HistoryPage weekData={weekData} />
+        <HistoryPage 
+          weekData={weekData}
+          currentWeight={currentWeight}
+          onAddConsumption={addConsumptionForDate}
+          onAddActivity={addActivityForDate}
+          onUpdateConsumptionQuantity={updateConsumptionQuantityForDate}
+          onDeleteConsumption={deleteConsumptionForDate}
+          onDeleteActivity={deleteActivityForDate}
+        />
       )}
 
       {currentView === 'weight' && (

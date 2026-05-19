@@ -37,7 +37,7 @@ function App() {
     updateBasePoints,
   } = usePointsTracker(initialBasePoints);
 
-  const { getCurrentWeight, addWeightEntry, deleteWeightEntry } = useWeightTracker();
+  const { weightEntries, getCurrentWeight, addWeightEntry, deleteWeightEntry } = useWeightTracker();
   const currentWeight = getCurrentWeight();
   
   const handleProfileComplete = (gender: 'femme' | 'homme', birthDate: string, height: number) => {
@@ -96,6 +96,7 @@ function App() {
 
       {currentView === 'weight' && (
         <WeightPage 
+          weightEntries={weightEntries}
           onAddWeight={handleAddWeight}
           onDeleteWeight={handleDeleteWeight}
         />

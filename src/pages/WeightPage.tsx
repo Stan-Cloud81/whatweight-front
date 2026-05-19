@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useWeightTracker } from '../hooks/useWeightTracker';
+import { WeightEntry } from '../types';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 
 interface Props {
+  weightEntries: WeightEntry[];
   onAddWeight: (weight: number, date?: string) => void;
   onDeleteWeight: (id: string) => void;
 }
 
-export function WeightPage({ onAddWeight, onDeleteWeight }: Props) {
-  const { weightEntries } = useWeightTracker();
+export function WeightPage({ weightEntries, onAddWeight, onDeleteWeight }: Props) {
   const [weight, setWeight] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [confirmDialog, setConfirmDialog] = useState<{

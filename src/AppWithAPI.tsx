@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { ViewMode } from './types';
 import { usePointsTrackerAPI } from './hooks/usePointsTrackerAPI';
@@ -20,8 +20,17 @@ function AppContent() {
   
   const { userProfile, updateProfile, isProfileComplete, isLoading: profileLoading } = useUserProfileAPI();
 
-  const initialBasePoints = userProfile.gender && userProfile.birthDate && userProfile.height
-    ? calculateBasePoints(userProfile.gender, 70, userProfile.birthDate, userProfile.height)
+  const { 
+    weightEntries, 
+    getCurrentWeight, 
+    addWeightEntry, 
+    deleteWeightEntry,
+  } = useWeightTrackerAPI();
+  
+  const currentWeight = getCurrentWeight();
+
+  const initialBasePoints = userProfile.gender && userProfile.birthDate && userProfile.height && currentWeight
+    ? calculateBasePoints(userProfile.gender, currentWeight, userProfile.birthDate, userProfile.height)
     : undefined;
 
   const {
@@ -42,14 +51,12 @@ function AppContent() {
     isLoading: dataLoading,
   } = usePointsTrackerAPI(initialBasePoints);
 
-  const { 
-    weightEntries, 
-    getCurrentWeight, 
-    addWeightEntry, 
-    deleteWeightEntry,
-  } = useWeightTrackerAPI();
-  
-  const currentWeight = getCurrentWeight();
+  useEffect(() => {
+    if (userProfile.gender && userProfile.birthDate && userProfile.height && currentWeight) {
+      updateBasePoints();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWeight, userProfile.gender, userProfile.birthDate, userProfile.height]);
 
   const handleProfileComplete = async (gender: 'femme' | 'homme', birthDate: string, height: number) => {
     await updateProfile({ gender, birthDate, height });
@@ -58,10 +65,16 @@ function AppContent() {
 
   const handleAddWeight = async (weight: number, date?: string) => {
     await addWeightEntry(weight, date);
+    if (userProfile.gender && userProfile.birthDate && userProfile.height) {
+      await updateBasePoints();
+    }
   };
 
   const handleDeleteWeight = async (id: string) => {
     await deleteWeightEntry(id);
+    if (userProfile.gender && userProfile.birthDate && userProfile.height) {
+      await updateBasePoints();
+    }
   };
 
   if (authLoading || profileLoading) {
@@ -103,6 +116,7 @@ function AppContent() {
               onUpdateConsumptionQuantity={updateConsumptionQuantity}
               onDeleteConsumption={deleteConsumption}
               onDeleteActivity={deleteActivity}
+              onNavigateToWeight={() => setCurrentView('weight')}
             />
           )}
 

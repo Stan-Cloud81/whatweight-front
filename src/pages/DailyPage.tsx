@@ -15,6 +15,7 @@ interface Props {
   onUpdateConsumptionQuantity: (id: string, delta: number) => void;
   onDeleteConsumption: (id: string) => void;
   onDeleteActivity: (id: string) => void;
+  onNavigateToWeight?: () => void;
 }
 
 export function DailyPage({
@@ -27,6 +28,7 @@ export function DailyPage({
   onUpdateConsumptionQuantity,
   onDeleteConsumption,
   onDeleteActivity,
+  onNavigateToWeight,
 }: Props) {
   const { foodHistory: apiFoodHistory, refresh: refreshFoodHistory } = useFoodHistoryAPI();
   const { activityHistory: apiActivityHistory, refresh: refreshActivityHistory } = useActivityHistoryAPI();
@@ -40,6 +42,18 @@ export function DailyPage({
 
   return (
     <div className="page-content">
+      {!currentWeight && (
+        <div className="warning-message" style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffc107' }}>
+          ⚠️ Veuillez renseigner votre poids dans la section{' '}
+          <span 
+            style={{ color: '#0066cc', textDecoration: 'underline', cursor: 'pointer', fontWeight: 'bold' }}
+            onClick={() => onNavigateToWeight?.()}
+          >
+            Poids
+          </span>
+          {' '}pour calculer vos points de base correctement.
+        </div>
+      )}
       <div className="points-display">
         <h2>Points disponibles</h2>
         <div className="points-number">{remainingPoints}</div>

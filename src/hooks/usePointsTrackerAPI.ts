@@ -13,7 +13,7 @@ import { getTodayDateString } from '../utils/pointsCalculator';
 export function usePointsTrackerAPI(initialBasePoints?: number) {
   const [weekData, setWeekData] = useState<WeekData>({
     startDate: getTodayDateString(),
-    dailyBasePoints: initialBasePoints || 31,
+    dailyBasePoints: initialBasePoints || 0,
     days: {},
   });
   const [isLoading, setIsLoading] = useState(true);

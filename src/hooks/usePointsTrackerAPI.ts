@@ -28,9 +28,11 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
     }
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (showLoading: boolean = true) => {
     try {
-      setIsLoading(true);
+      if (showLoading) {
+        setIsLoading(true);
+      }
       const response = await daysService.getAll();
       
       const daysRecord: Record<string, DayData> = {};
@@ -49,7 +51,9 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
       setError(err.message);
       console.error('Failed to load data:', err);
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -81,7 +85,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
         mealType,
         quantity,
       });
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Failed to add consumption:', err);
       throw err;
@@ -101,7 +105,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
         durationMinutes,
       });
 
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Failed to add activity:', err);
       throw err;
@@ -120,7 +124,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
       const newQuantity = consumption.quantity + delta;
       await consumptionsService.updateQuantity(consumptionId, newQuantity);
       
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Failed to update consumption:', err);
       throw err;
@@ -130,7 +134,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
   const deleteConsumption = async (consumptionId: string) => {
     try {
       await consumptionsService.delete(consumptionId);
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Failed to delete consumption:', err);
       throw err;
@@ -140,7 +144,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
   const deleteActivity = async (activityId: string) => {
     try {
       await activitiesService.delete(activityId);
-      await loadData();
+      await loadData(true);
     } catch (err) {
       console.error('Failed to delete activity:', err);
       throw err;
@@ -161,7 +165,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
         mealType,
         quantity,
       });
-      return loadData();
+      return loadData(false);
     } catch (err) {
       console.error('Failed to add consumption:', err);
       throw err;
@@ -180,7 +184,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
         intensity,
         durationMinutes,
       });
-      return loadData();
+      return loadData(false);
     } catch (err) {
       console.error('Failed to add activity:', err);
       throw err;
@@ -197,7 +201,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
 
       const newQuantity = consumption.quantity + delta;
       await consumptionsService.updateQuantity(consumptionId, newQuantity);
-      await loadData();
+      await loadData(false);
     } catch (err) {
       console.error('Failed to update consumption:', err);
       throw err;
@@ -207,7 +211,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
   const deleteConsumptionForDate = async (_date: string, consumptionId: string) => {
     try {
       await consumptionsService.delete(consumptionId);
-      await loadData();
+      await loadData(false);
     } catch (err) {
       console.error('Failed to delete consumption:', err);
       throw err;
@@ -217,7 +221,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
   const deleteActivityForDate = async (_date: string, activityId: string) => {
     try {
       await activitiesService.delete(activityId);
-      await loadData();
+      await loadData(false);
     } catch (err) {
       console.error('Failed to delete activity:', err);
       throw err;
@@ -225,7 +229,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
   };
 
   const updateBasePoints = async () => {
-    await loadData();
+    await loadData(true);
   };
 
   const todayData = getTodayData();

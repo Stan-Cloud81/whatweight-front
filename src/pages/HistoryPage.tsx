@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { WeekData, DayData, MealType, ActivityIntensity } from '../types';
 import { calculateDayRemainingPoints } from '../utils/pointsCalculator';
-import { setupBackButtonHandler, pushNavigationState } from '../utils/navigation';
+import { setupBackButtonHandler } from '../utils/navigation';
 import { ConsumptionForm } from '../components/ConsumptionForm';
 import { ActivityForm } from '../components/ActivityForm';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -39,13 +39,12 @@ export function HistoryPage({
 
   useEffect(() => {
     if (selectedView) {
-      pushNavigationState(selectedView.type);
       const cleanup = setupBackButtonHandler(() => {
         setSelectedView(null);
       });
       return cleanup;
     }
-  }, [selectedView]);
+  }, [selectedView?.type, selectedView?.type === 'day' ? selectedView.date : selectedView?.type === 'week' ? (selectedView as any).weekStart : null]);
 
   const getDaysArray = () => {
     const today = new Date();

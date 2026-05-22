@@ -97,7 +97,6 @@ function AppContent() {
             <DailyPage
               todayData={todayData}
               remainingPoints={remainingPoints}
-              weekData={weekData}
               currentWeight={currentWeight}
               onAddConsumption={addConsumption}
               onAddActivity={addActivity}

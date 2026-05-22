@@ -5,7 +5,7 @@ import { setupBackButtonHandler, pushNavigationState } from '../utils/navigation
 import { ConsumptionForm } from '../components/ConsumptionForm';
 import { ActivityForm } from '../components/ActivityForm';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { getFoodHistory, getActivityHistory } from '../hooks/useHistory';
+import { useFoodHistoryAPI, useActivityHistoryAPI } from '../hooks/useHistoryAPI';
 
 interface Props {
   weekData: WeekData;
@@ -33,8 +33,8 @@ export function HistoryPage({
   const [selectedView, setSelectedView] = useState<SelectedView>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'consumption' | 'activity'; id: string; date: string } | null>(null);
   
-  const foodHistory = getFoodHistory(weekData);
-  const activityHistory = getActivityHistory(weekData);
+  const { foodHistory, refresh: refreshFoodHistory } = useFoodHistoryAPI();
+  const { activityHistory, refresh: refreshActivityHistory } = useActivityHistoryAPI();
 
   useEffect(() => {
     if (selectedView) {
@@ -188,9 +188,10 @@ export function HistoryPage({
             <div className="empty-state">Aucune activité</div>
           )}
           <ActivityForm
-            onAdd={(name, intensity, duration, points) => 
-              onAddActivity(selectedView.date, name, intensity, duration, points)
-            }
+            onAdd={async (name, intensity, duration, points) => {
+              const loadDataPromise = onAddActivity(selectedView.date, name, intensity, duration, points);
+              await Promise.all([loadDataPromise, refreshActivityHistory()]);
+            }}
             activityHistory={activityHistory}
             currentWeight={currentWeight}
           />
@@ -236,9 +237,10 @@ export function HistoryPage({
             <div className="empty-state">Aucune consommation</div>
           )}
           <ConsumptionForm
-            onAdd={(name, pointsPerUnit, mealType, quantity) => 
-              onAddConsumption(selectedView.date, name, pointsPerUnit, mealType, quantity)
-            }
+            onAdd={async (name, pointsPerUnit, mealType, quantity) => {
+              const loadDataPromise = onAddConsumption(selectedView.date, name, pointsPerUnit, mealType, quantity);
+              await Promise.all([loadDataPromise, refreshFoodHistory()]);
+            }}
             foodHistory={foodHistory}
           />
         </section>

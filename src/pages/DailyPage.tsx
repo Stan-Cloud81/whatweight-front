@@ -2,15 +2,16 @@ import { ConsumptionForm } from '../components/ConsumptionForm';
 import { ActivityForm } from '../components/ActivityForm';
 import { EntriesList } from '../components/EntriesList';
 import { DayData, MealType, ActivityIntensity, WeekData } from '../types';
+import { useFoodHistoryAPI, useActivityHistoryAPI } from '../hooks/useHistoryAPI';
 import { getFoodHistory, getActivityHistory } from '../hooks/useHistory';
 
 interface Props {
   todayData: DayData;
   remainingPoints: number;
-  weekData: WeekData;
+  weekData?: WeekData;
   currentWeight: number | null;
-  onAddConsumption: (name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void;
-  onAddActivity: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void;
+  onAddConsumption: (name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void | Promise<void>;
+  onAddActivity: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void | Promise<void>;
   onUpdateConsumptionQuantity: (id: string, delta: number) => void;
   onDeleteConsumption: (id: string) => void;
   onDeleteActivity: (id: string) => void;
@@ -27,8 +28,15 @@ export function DailyPage({
   onDeleteConsumption,
   onDeleteActivity,
 }: Props) {
-  const foodHistory = getFoodHistory(weekData);
-  const activityHistory = getActivityHistory(weekData);
+  const { foodHistory: apiFoodHistory, refresh: refreshFoodHistory } = useFoodHistoryAPI();
+  const { activityHistory: apiActivityHistory, refresh: refreshActivityHistory } = useActivityHistoryAPI();
+  
+  const localFoodHistory = weekData ? getFoodHistory(weekData) : [];
+  const localActivityHistory = weekData ? getActivityHistory(weekData) : [];
+  
+  const foodHistory = weekData ? localFoodHistory : apiFoodHistory;
+  const activityHistory = weekData ? localActivityHistory : apiActivityHistory;
+  
 
   return (
     <div className="page-content">
@@ -47,13 +55,26 @@ export function DailyPage({
 
       <section className="section">
         <h3>🍽️ Consommations</h3>
-        <ConsumptionForm onAdd={onAddConsumption} foodHistory={foodHistory} />
+        <ConsumptionForm 
+          onAdd={async (name, pointsPerUnit, mealType, quantity) => {
+            await onAddConsumption(name, pointsPerUnit, mealType, quantity);
+            if (!weekData) {
+              await refreshFoodHistory();
+            }
+          }} 
+          foodHistory={foodHistory} 
+        />
       </section>
 
       <section className="section">
         <h3>🏃 Activités</h3>
         <ActivityForm 
-          onAdd={onAddActivity} 
+          onAdd={async (name, intensity, duration, points) => {
+            await onAddActivity(name, intensity, duration, points);
+            if (!weekData) {
+              await refreshActivityHistory();
+            }
+          }} 
           activityHistory={activityHistory}
           currentWeight={currentWeight}
         />

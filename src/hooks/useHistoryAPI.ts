@@ -21,7 +21,10 @@ export function useFoodHistoryAPI() {
   const [foodHistory, setFoodHistory] = useState<FoodHistory[]>([]);
 
   useEffect(() => {
-    loadFoodHistory();
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      loadFoodHistory();
+    }
   }, []);
 
   const loadFoodHistory = async () => {
@@ -33,14 +36,17 @@ export function useFoodHistoryAPI() {
     }
   };
 
-  return foodHistory;
+  return { foodHistory, refresh: loadFoodHistory };
 }
 
 export function useActivityHistoryAPI() {
   const [activityHistory, setActivityHistory] = useState<ActivityHistory[]>([]);
 
   useEffect(() => {
-    loadActivityHistory();
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      loadActivityHistory();
+    }
   }, []);
 
   const loadActivityHistory = async () => {
@@ -52,5 +58,5 @@ export function useActivityHistoryAPI() {
     }
   };
 
-  return activityHistory;
+  return { activityHistory, refresh: loadActivityHistory };
 }

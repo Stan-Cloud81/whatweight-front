@@ -4,7 +4,7 @@ import { ActivityHistory } from '../hooks/useHistory';
 import { calculateActivityPoints } from '../utils/pointsCalculator';
 
 interface Props {
-  onAdd: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void;
+  onAdd: (name: string, intensity: ActivityIntensity, duration: number, points: number) => void | Promise<void>;
   activityHistory: ActivityHistory[];
   currentWeight: number | null;
 }
@@ -53,10 +53,10 @@ export function ActivityForm({ onAdd, activityHistory, currentWeight }: Props) {
     ? calculateActivityPoints(intensity, Number(duration), currentWeight)
     : 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() && duration && currentWeight) {
-      onAdd(name.trim(), intensity, Number(duration), calculatedPoints);
+      await onAdd(name.trim(), intensity, Number(duration), calculatedPoints);
       setName('');
       setDuration('');
       setShowSuggestions(false);

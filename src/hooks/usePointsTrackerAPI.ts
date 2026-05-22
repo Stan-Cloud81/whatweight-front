@@ -35,7 +35,8 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
       
       const daysRecord: Record<string, DayData> = {};
       response.days.forEach(day => {
-        daysRecord[day.date] = day;
+        const normalizedDate = day.date.split('T')[0];
+        daysRecord[normalizedDate] = { ...day, date: normalizedDate };
       });
 
       setWeekData({
@@ -54,7 +55,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
 
   const getTodayData = (): DayData => {
     const today = getTodayDateString();
-    return weekData.days[today] || {
+    const data = weekData.days[today] || {
       date: today,
       basePoints: weekData.dailyBasePoints,
       pointsUsed: 0,
@@ -63,6 +64,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
       activities: [],
       carryOverPoints: 0,
     };
+    return data;
   };
 
   const addConsumption = async (
@@ -79,7 +81,6 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
         mealType,
         quantity,
       });
-
       await loadData();
     } catch (err) {
       console.error('Failed to add consumption:', err);
@@ -160,7 +161,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
         mealType,
         quantity,
       });
-      await loadData();
+      return loadData();
     } catch (err) {
       console.error('Failed to add consumption:', err);
       throw err;
@@ -179,7 +180,7 @@ export function usePointsTrackerAPI(initialBasePoints?: number) {
         intensity,
         durationMinutes,
       });
-      await loadData();
+      return loadData();
     } catch (err) {
       console.error('Failed to add activity:', err);
       throw err;

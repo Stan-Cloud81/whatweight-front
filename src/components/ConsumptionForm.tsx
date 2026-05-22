@@ -3,7 +3,7 @@ import { MealType } from '../types';
 import { FoodHistory } from '../hooks/useHistory';
 
 interface Props {
-  onAdd: (name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void;
+  onAdd: (name: string, pointsPerUnit: number, mealType: MealType, quantity: number) => void | Promise<void>;
   foodHistory: FoodHistory[];
 }
 
@@ -47,10 +47,10 @@ export function ConsumptionForm({ onAdd, foodHistory }: Props) {
     setShowSuggestions(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() && pointsPerUnit) {
-      onAdd(name.trim(), Number(pointsPerUnit), mealType, quantity);
+      await onAdd(name.trim(), Number(pointsPerUnit), mealType, quantity);
       setName('');
       setPointsPerUnit('');
       setQuantity(1);

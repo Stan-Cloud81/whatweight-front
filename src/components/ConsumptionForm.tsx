@@ -9,6 +9,20 @@ interface Props {
 
 const MEAL_TYPES: MealType[] = ['matin', 'midi', 'soir', 'en-cas/plaisir'];
 
+const MEAL_ICONS: Record<MealType, string> = {
+  'matin': '/icons/petit-dejeuner.png',
+  'midi': '/icons/dejeuner.png',
+  'soir': '/icons/diner.png',
+  'en-cas/plaisir': '/icons/plaisir.png',
+};
+
+const MEAL_LABELS: Record<MealType, string> = {
+  'matin': 'Matin',
+  'midi': 'Midi',
+  'soir': 'Soir',
+  'en-cas/plaisir': 'Plaisir',
+};
+
 export function ConsumptionForm({ onAdd, foodHistory }: Props) {
   const [name, setName] = useState('');
   const [pointsPerUnit, setPointsPerUnit] = useState('');
@@ -62,56 +76,59 @@ export function ConsumptionForm({ onAdd, foodHistory }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="input-group">
-      <div ref={wrapperRef} className="autocomplete-wrapper">
-        <input
-          type="text"
-          placeholder="Nom (ex: Pomme)"
-          value={name}
-          onChange={(e) => handleNameChange(e.target.value)}
-          onFocus={() => {
-            if (name.trim() && filteredSuggestions.length > 0) {
-              setShowSuggestions(true);
-            }
-          }}
-          required
-        />
-        {showSuggestions && (
-          <ul className="suggestions-list">
-            {filteredSuggestions.map((item, index) => (
-              <li
-                key={index}
-                className="suggestion-item"
-                onClick={() => handleSelectSuggestion(item)}
-              >
-                <span className="suggestion-name">{item.name}</span>
-                <span className="suggestion-points">{item.pointsPerUnit} pts</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div className="input-row">
-        <input
-          type="number"
-          placeholder="Points/unité"
-          value={pointsPerUnit}
-          onChange={(e) => setPointsPerUnit(e.target.value)}
-          min="0"
-          step="0.25"
-          required
-          style={{ flex: 1 }}
-        />
-        <select
-          value={mealType}
-          onChange={(e) => setMealType(e.target.value as MealType)}
-          style={{ flex: 1 }}
-        >
+      <div className="consumption-inputs-row">
+        <div className="left-inputs">
+          <div ref={wrapperRef} className="autocomplete-wrapper">
+            <input
+              type="text"
+              placeholder="Nom (ex: Pomme)"
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              onFocus={() => {
+                if (name.trim() && filteredSuggestions.length > 0) {
+                  setShowSuggestions(true);
+                }
+              }}
+              required
+            />
+            {showSuggestions && (
+              <ul className="suggestions-list">
+                {filteredSuggestions.map((item, index) => (
+                  <li
+                    key={index}
+                    className="suggestion-item"
+                    onClick={() => handleSelectSuggestion(item)}
+                  >
+                    <span className="suggestion-name">{item.name}</span>
+                    <span className="suggestion-points">{item.pointsPerUnit} pts</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <input
+            type="number"
+            placeholder="Points/unité"
+            value={pointsPerUnit}
+            onChange={(e) => setPointsPerUnit(e.target.value)}
+            min="0"
+            step="0.25"
+            required
+          />
+        </div>
+        <div className="meal-type-selector">
           {MEAL_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </option>
+            <button
+              key={type}
+              type="button"
+              className={`meal-icon-btn ${mealType === type ? 'selected' : ''}`}
+              onClick={() => setMealType(type)}
+            >
+              <img src={MEAL_ICONS[type]} alt={type} />
+              <span className="meal-label">{MEAL_LABELS[type]}</span>
+            </button>
           ))}
-        </select>
+        </div>
       </div>
       <div className="quantity-control">
         <button

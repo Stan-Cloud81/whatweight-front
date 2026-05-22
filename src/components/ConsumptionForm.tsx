@@ -115,6 +115,25 @@ export function ConsumptionForm({ onAdd, foodHistory }: Props) {
             step="0.25"
             required
           />
+          <div className="quantity-control">
+            <button
+              type="button"
+              className="quantity-btn"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            >
+              −
+            </button>
+            <span className="quantity-display">
+              Quantité: {quantity} {totalPoints > 0 && `(${totalPoints} pts)`}
+            </span>
+            <button
+              type="button"
+              className="quantity-btn"
+              onClick={() => setQuantity(quantity + 1)}
+            >
+              +
+            </button>
+          </div>
         </div>
         <div className="meal-type-selector">
           {MEAL_TYPES.map((type) => (
@@ -129,25 +148,6 @@ export function ConsumptionForm({ onAdd, foodHistory }: Props) {
             </button>
           ))}
         </div>
-      </div>
-      <div className="quantity-control">
-        <button
-          type="button"
-          className="quantity-btn"
-          onClick={() => setQuantity(Math.max(1, quantity - 1))}
-        >
-          −
-        </button>
-        <span className="quantity-display">
-          Quantité: {quantity} {totalPoints > 0 && `(${totalPoints} pts)`}
-        </span>
-        <button
-          type="button"
-          className="quantity-btn"
-          onClick={() => setQuantity(quantity + 1)}
-        >
-          +
-        </button>
       </div>
       <button type="submit">+ Ajouter consommation</button>
     </form>

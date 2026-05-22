@@ -94,6 +94,41 @@ body {
   align-items: center;
 }
 
+.add-date-box {
+  background: rgba(10, 107, 199, 0.1);
+  color: #0a6bc7;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.2s;
+  border: 2px dashed rgba(10, 107, 199, 0.3);
+}
+
+.add-date-box:hover {
+  background: rgba(10, 107, 199, 0.15);
+  border-color: rgba(10, 107, 199, 0.5);
+}
+
+.add-date-box:active {
+  background: rgba(10, 107, 199, 0.2);
+}
+
+.add-icon {
+  font-size: 1.8rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.add-date-box span {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .consumption-inputs-row {
   display: flex;
   gap: 0.5rem;

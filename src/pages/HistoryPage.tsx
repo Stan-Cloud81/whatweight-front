@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WeekData, DayData, MealType, ActivityIntensity } from '../types';
 import { calculateDayRemainingPoints } from '../utils/pointsCalculator';
 import { setupBackButtonHandler, pushNavigationState } from '../utils/navigation';
@@ -32,6 +32,7 @@ export function HistoryPage({
   const [viewMode, setViewMode] = useState<HistoryView>('week');
   const [selectedView, setSelectedView] = useState<SelectedView>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'consumption' | 'activity'; id: string; date: string } | null>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
   
   const { foodHistory, refresh: refreshFoodHistory } = useFoodHistoryAPI();
   const { activityHistory, refresh: refreshActivityHistory } = useActivityHistoryAPI();
@@ -116,8 +117,15 @@ export function HistoryPage({
   const weeks = getWeeksData();
 
   if (selectedView?.type === 'day') {
-    const dayData = weekData.days[selectedView.date];
-    if (!dayData) return null;
+    const dayData = weekData.days[selectedView.date] || {
+      date: selectedView.date,
+      basePoints: weekData.dailyBasePoints,
+      pointsUsed: 0,
+      pointsEarned: 0,
+      consumptions: [],
+      activities: [],
+      carryOverPoints: 0,
+    };
 
     const remaining = calculateDayRemainingPoints(
       dayData.basePoints,
@@ -369,6 +377,23 @@ export function HistoryPage({
           ) : (
             <div className="empty-state">Aucune donnée</div>
           )}
+          <div 
+            className="add-date-box"
+            onClick={() => dateInputRef.current?.showPicker()}
+          >
+            <div className="add-icon">+</div>
+            <span>Ajouter une date</span>
+          </div>
+          <input
+            ref={dateInputRef}
+            type="date"
+            onChange={(e) => {
+              if (e.target.value) {
+                setSelectedView({ type: 'day', date: e.target.value });
+              }
+            }}
+            style={{ display: 'none' }}
+          />
         </section>
       ) : (
         <section className="section">
@@ -409,6 +434,23 @@ export function HistoryPage({
           ) : (
             <div className="empty-state">Aucune donnée</div>
           )}
+          <div 
+            className="add-date-box"
+            onClick={() => dateInputRef.current?.showPicker()}
+          >
+            <div className="add-icon">+</div>
+            <span>Ajouter une date</span>
+          </div>
+          <input
+            ref={dateInputRef}
+            type="date"
+            onChange={(e) => {
+              if (e.target.value) {
+                setSelectedView({ type: 'day', date: e.target.value });
+              }
+            }}
+            style={{ display: 'none' }}
+          />
         </section>
       )}
     </div>
